@@ -1,122 +1,308 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
+<html lang="pt-br">
+<head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | Golf Billions</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-  </head>
-  <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=320 height=1200 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-webgl-logo"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Golf Billions</div>
-      </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Golf Billions</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            background-color: black;
+            background-image: url("./public/Loading_BG.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        #unity-canvas {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        #unity-loading-bar {
+            display: none;
+            background-image: url('./public/Loading_BarBG.png');
+            background-size: 100% 100%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 80%;
+            width: 17rem;
+            height: 35px;
+        }
+
+        #unity-progress-bar {
+            background-image: url('./public/Loading_BarFill.png');
+            background-size: auto 100%;
+            position: absolute;
+            left: 0%;
+            top: 0%;
+            width: 0%;
+            height: 100%;
+            opacity: 0.3;
+        }
+
+        #container {
+            display: block;
+            height: 100vh;
+        }
+        .logo {
+            background-image: url('./public/Logo.png');
+            background-size: 100%;
+            background-repeat: no-repeat;
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transform: translateX(-50%);
+            width: 350px;
+            height: 350px;
+        }
+
+        .loading-icon {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 81%;
+            font-size: 24px;
+            color: #ffffff;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        #connectScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-size: 22px;
+            font-family: Arial, sans-serif;
+            z-index: 9999;
+        }
+
+        #connectButton, #dontConnectButton {
+            padding: 15px 25px;
+            font-size: 18px;
+            border: none;
+            background-color: #ffcc00;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        #connectButton:hover, #dontConnectButton:hover {
+            background-color: #ffdd44;
+        }
+    </style>
+</head>
+<body>
+    <div id="connectScreen" style="display: none;">
+        <h2>Bem-vindo ao Golf Billions</h2>
+        <p>Para continuar, conecte o controlador.</p>
+        <button id="connectButton">Conectar ao Controlador</button>
+        <button id="dontConnectButton">Fechar sem Conectar</button>
     </div>
+    
+    <canvas id="unity-canvas"></canvas>
+    
+    <div id="container">
+        <div class="logo"></div>
+        <i class="fas fa-spinner loading-icon"></i>
+        <div id="unity-loading-bar">
+            <div id="unity-progress-bar"></div>
+        </div>
+    </div>
+
     <script>
+        // Configuração do WebGL Unity
+        const maxPixelRatioMobile = 2.0;
+        const maxPixelRatioDesktop = 1.5;
 
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var warningBanner = document.querySelector("#unity-warning");
+        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        var maxDevicePixelRatio = isMobile ? maxPixelRatioMobile : maxPixelRatioDesktop;
+        var pixelRatio = Math.min(window.devicePixelRatio, maxDevicePixelRatio);
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-      function unityShowBanner(msg, type) {
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        var buildUrl = "Build";
+        var loaderUrl = buildUrl + "/GolfBillions.loader.js";
+        var config = {
+            dataUrl: buildUrl + "/GolfBillions.data.unityweb",
+            frameworkUrl: buildUrl + "/GolfBillions.framework.js.unityweb",
+            codeUrl: buildUrl + "/GolfBillions.wasm.unityweb",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "Golf Billions",
+            productVersion: "0.2.9",
+            devicePixelRatio: pixelRatio
+        };
+
+        // Elementos da UI
+        var canvas = document.querySelector("#unity-canvas");
+        var loadingBar = document.querySelector("#unity-loading-bar");
+        var container = document.querySelector("#container");
+        var progressBar = document.querySelector("#unity-progress-bar");
+        var GameInstance = null;
+
+        // Função para exibir erros
+        function showError(message) {
+            console.error(message);
+            alert("Ocorreu um erro: " + message);
         }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
-      }
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/GolfBillions.loader.js";
-      var config = {
-        dataUrl: buildUrl + "/GolfBillions.data.gz",
-        frameworkUrl: buildUrl + "/GolfBillions.framework.js.gz",
-        codeUrl: buildUrl + "/GolfBillions.wasm.gz",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Golf Billions",
-        productVersion: "0.2.9",
-        showBanner: unityShowBanner,
-      };
-
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        container.className = "unity-mobile";
-        canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
-      } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-
-        canvas.style.width = "320px";
-        canvas.style.height = "1200px";
-      }
-
-      loadingBar.style.display = "block";
-
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                loadingBar.style.display = "none";
-                fullscreenButton.onclick = () => {
-                  unityInstance.SetFullscreen(1);
+        // Carregar o jogo Unity
+        function loadUnityGame() {
+            try {
+                var script = document.createElement("script");
+                script.src = loaderUrl;
+                
+                script.onload = function() {
+                    createUnityInstance(canvas, config, function(progress) {
+                        const p = progress + 0.1;
+                        progressBar.style.width = (100 * p) + "%";
+                    }).then(function(unityInstance) {
+                        progressBar.style.width = "100%";
+                        container.style.display = "none";
+                        loadingBar.style.display = "none";
+                        GameInstance = unityInstance;
+                    }).catch(function(error) {
+                        showError("Falha ao criar instância Unity: " + error);
+                    });
                 };
-              }).catch((message) => {
-                alert(message);
-              });
-            };
+                
+                script.onerror = function() {
+                    showError("Falha ao carregar o script do Unity");
+                };
+                
+                document.body.appendChild(script);
+                
+                setTimeout(function() {
+                    loadingBar.style.display = "block";
+                }, 2300);
+                
+            } catch (error) {
+                showError("Erro na inicialização: " + error.message);
+            }
+        }
 
-      document.body.appendChild(script);
+        // Controle do Arduino via Serial
+        let port;
+        let reader;
+        let connected = false;
 
+        function checkUrlForParameter() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get("m") === "2";
+        }
+
+        async function connectSerial() {
+            console.log("Tentando conectar ao Arduino...");
+
+            try {
+                if (connected) {
+                    console.log("Já conectado ao Arduino.");
+                    return;
+                }
+
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 9600 });
+
+                connected = true;
+                console.log("Conectado ao Arduino!");
+
+                document.getElementById("connectScreen").style.display = "none";
+
+                reader = port.readable.getReader();
+                readSerialData();
+            } catch (error) {
+                console.error("Erro ao conectar à Serial:", error);
+                showError("Erro ao conectar: " + error.message);
+            }
+        }
+
+        async function readSerialData() {
+            while (true) {
+                try {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    let text = new TextDecoder().decode(value).trim();
+                    if (text && GameInstance) {
+                        console.log("Dados recebidos do Arduino:", text);
+                        GameInstance.SendMessage("Manager", "Test", String(text));
+                    }
+                } catch (error) {
+                    console.error("Erro na leitura:", error);
+                    break;
+                }
+            }
+        }
+
+        function closeWithoutConnecting() {
+            document.getElementById("connectScreen").style.display = "none";
+        }
+
+        // Inicialização
+        window.onload = function() {
+            // Configura CORS para evitar problemas
+            if (window.performance) {
+                console.log("Performance API suportada");
+            }
+
+            // Verifica se deve mostrar a tela de conexão
+            if (checkUrlForParameter()) {
+                document.getElementById("connectScreen").style.display = "flex";
+            }
+
+            // Configura os botões
+            document.getElementById("connectButton").addEventListener("click", connectSerial);
+            document.getElementById("dontConnectButton").addEventListener("click", closeWithoutConnecting);
+
+            // Inicia o jogo
+            loadUnityGame();
+        };
+
+        // Funções auxiliares
+        function GoToURL(url) {
+            window.open(url, "_top");
+        }
+
+        function FullScreen() {
+            if (!document.fullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.msRequestFullscreen) {  
+                    document.documentElement.msRequestFullscreen();
+                }
+            } else {
+                document.exitFullscreen();
+            }
+        }
     </script>
-  </body>
+</body>
 </html>
