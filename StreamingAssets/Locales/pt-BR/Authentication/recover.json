@@ -1,0 +1,22 @@
+{
+  "recover": {
+    "titles": {
+      "forgetPassword": "ESQUECEU A SENHA?"
+    },
+    "buttons": {
+      "recoverPassword": "RECUPERE SUA SENHA",
+      "connect": "CONECTE-SE"
+    },
+    "labels": {
+      "rememberPassword": "LEMBROU A SENHA?",
+      "email": "E-MAIL"
+    },
+    "placeholders": {},
+    "enums": {},
+    "messages": {
+      "emailRequired": "O campo de email é obrigatório!",
+      "emailInvalid": "Endereço de email inválido!",
+      "recoverError": "Falha ao recuperar sua senha!"
+    }
+  }
+}

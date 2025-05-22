@@ -1,0 +1,24 @@
+{
+  "login": {
+    "titles": {
+      "login": "LOGIN"
+    },
+    "buttons": {
+      "enter": "ENTRAR",
+      "forgetPassword": "ESQUECI A SENHA?"
+    },
+    "labels": {
+      "email": "NOME DO USUÁRIO",
+      "password": "SENHA"
+    },
+    "placeholders": {},
+    "enums": {},
+    "messages": {
+      "emailRequired": "O campo de email é obrigatório!",
+      "emailInvalid": "Endereço de email inválido!",
+      "passwordRequired": "O campo de senha é obrigatório!",
+      "passwordMinRequired": "A senha deve ter no mínimo 8 caracteres!",
+      "loginError": "Falha ao fazer login. Verifique suas credenciais!"
+    }
+  }
+}

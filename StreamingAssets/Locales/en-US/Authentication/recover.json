@@ -1,0 +1,23 @@
+{
+  "recover": {
+    "titles": {
+      "forgetPassword": "FORGET THE PASSWORD?"
+    },
+    "buttons": {
+      "recoverPassword": "RECOVER YOUR PASSWORD",
+      "connect": "CONNECT"
+    },
+    "labels": {
+      "rememberPassword": "REMEMBERED THE PASSWORD?",
+      "email": "E-MAIL"
+    },
+    "placeholders": {},
+    "enums": {},
+    "messages": {
+      "emailRequired": "The email field is required!",
+      "emailInvalid": "Email is invalid!",
+      "recoverError": "Failed to recover your password!"
+    }
+
+  }
+}

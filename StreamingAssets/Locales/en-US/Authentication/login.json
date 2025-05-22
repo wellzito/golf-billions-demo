@@ -1,0 +1,24 @@
+{
+  "login": {
+    "titles": {
+      "login": "LOGIN"
+    },
+    "buttons": {
+      "enter": "ENTER",
+      "forgetPassword": "FORGOT PASSWORD?"
+    },
+    "labels": {
+      "email": "USERNAME",
+      "password": "PASSWORD"
+    },
+    "placeholders": {},
+    "enums": {},
+    "messages": {
+      "emailRequired": "The email field is required!",
+      "emailInvalid": "Email is invalid!",
+      "passwordRequired": "The password field is required!",
+      "passwordMinRequired": "The password must be at least 8 characters long!",
+      "loginError": "Failed to login. Check your credentials!"
+    }
+  }
+}

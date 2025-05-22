@@ -1,0 +1,14 @@
+{
+  "general": {
+    "placeholders": {},
+    "buttons": {},
+    "labels": {
+      "loading": "CARREGANDO",
+      "findingGame": "Encontrando partida",
+      "noGameFound": "Nenhuma partida encontrada",
+      "findingOpponents": "Encontrando adversários",
+      "noOpponentsFound": "Nenhum adversário encontrado"
+    },
+    "enums": {}
+  }
+}

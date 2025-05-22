@@ -1,0 +1,16 @@
+{
+  "general": {
+    "titles": {},
+    "buttons": {},
+    "labels": {
+      "loading": "LOADING",
+      "findingGame": "Finding game",
+      "noGameFound": "No game found",
+      "findingOpponents": "Finding opponents",
+      "noOpponentsFound": "No opponents found"
+    },
+    "placeholders": {},
+    "enums": {},
+    "messages": {}
+  }
+}
